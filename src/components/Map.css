@@ -1,0 +1,56 @@
+.map-container {
+  padding: 4rem 2rem;
+  background: #ffffff;
+  text-align: center;
+}
+
+.map-container h3 {
+  color: #2B6CB0;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  font-weight: 600;
+}
+
+.map-wrapper {
+  margin-bottom: 2rem;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(43, 108, 176, 0.1);
+}
+
+.map-info {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #4a5568;
+}
+
+.info-item i {
+  color: #2B6CB0;
+  font-size: 1.5rem;
+}
+
+.info-item p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .map-info {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .info-item {
+    justify-content: center;
+  }
+} 
