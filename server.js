@@ -1,16 +1,14 @@
 const express = require('express')
-const stripe = require('stripe')('YOUR_SECRET_KEY')
+const stripe = require('stripe')('Şirket_SECRET_KEY')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const nodemailer = require('nodemailer')
 
 const app = express()
 
-// Middleware
 app.use(cors())
 app.use(bodyParser.json())
 
-// Ödeme işlemi için endpoint
 app.post('/create-payment-intent', async (req, res) => {
   try {
     const { amount, currency, paymentMethod } = req.body
@@ -35,7 +33,6 @@ app.post('/create-payment-intent', async (req, res) => {
   }
 })
 
-// Ödeme durumunu kontrol et
 app.get('/payment-status/:paymentIntentId', async (req, res) => {
   try {
     const paymentIntent = await stripe.paymentIntents.retrieve(
@@ -86,7 +83,6 @@ app.post('/webhook', express.raw({type: 'application/json'}), async (req, res) =
   if (event.type === 'payment_intent.succeeded') {
     const paymentIntent = event.data.object
     console.log('Ödeme başarılı:', paymentIntent.id)
-    // Burada gerekli işlemleri yapabilirsiniz
   }
 
   res.json({received: true})
