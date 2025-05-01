@@ -1,5 +1,5 @@
 const express = require('express')
-const stripe = require('stripe')('Şirket_SECRET_KEY')
+const stripe = require('stripe')('sk_test_your_stripe_secret_key')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const nodemailer = require('nodemailer')
@@ -11,24 +11,18 @@ app.use(bodyParser.json())
 
 app.post('/create-payment-intent', async (req, res) => {
   try {
-    const { amount, currency, paymentMethod } = req.body
-
-    // Ödeme niyeti oluştur
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount * 100, // Kuruş cinsinden
-      currency: currency,
-      payment_method_types: [paymentMethod],
-      metadata: {
-        testId: req.body.testId || 'unknown'
-      }
+      amount: 199, // 1.99$ için cent cinsinden
+      currency: 'usd',
+      automatic_payment_methods: {
+        enabled: true,
+      },
     })
 
     res.json({
-      clientSecret: paymentIntent.client_secret,
-      paymentIntentId: paymentIntent.id
+      clientSecret: paymentIntent.client_secret
     })
   } catch (error) {
-    console.error('Ödeme hatası:', error)
     res.status(500).json({ error: error.message })
   }
 })
@@ -49,19 +43,38 @@ app.get('/payment-status/:paymentIntentId', async (req, res) => {
   }
 })
 
-// Başarılı ödeme sonrası e-posta gönderimi
 app.post('/send-results', async (req, res) => {
   try {
-    const { email, testId, score } = req.body
+    const { email, score, totalQuestions, testId } = req.body
 
-    // Burada e-posta gönderme işlemi yapılacak
-    // Örnek: nodemailer kullanarak
-    // const transporter = nodemailer.createTransport({...})
-    // await transporter.sendMail({...})
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'your-email@gmail.com',
+        pass: 'your-app-password'
+      }
+    })
 
-    res.json({ success: true, message: 'E-posta gönderildi' })
+    const mailOptions = {
+      from: 'your-email@gmail.com',
+      to: email,
+      subject: 'IQ Test Sonuçlarınız',
+      html: `
+        <h1>IQ Test Sonuçlarınız</h1>
+        <p>Test ID: ${testId}</p>
+        <p>Doğru Cevap Sayısı: ${score}</p>
+        <p>Toplam Soru Sayısı: ${totalQuestions}</p>
+        <p>Başarı Oranı: ${(score/totalQuestions*100).toFixed(2)}%</p>
+        <p>Test Tarihi: ${new Date().toLocaleDateString('tr-TR')}</p>
+        <p>Saygılarımızla,<br>IQ Tests Ekibi</p>
+      `
+    }
+
+    await transporter.sendMail(mailOptions)
+    res.json({ success: true })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    console.error('E-posta gönderme hatası:', error)
+    res.status(500).json({ error: 'E-posta gönderilemedi' })
   }
 })
 
